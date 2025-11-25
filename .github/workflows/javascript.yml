@@ -6,7 +6,7 @@ on:
   
 jobs:
   build-test-and-push:
-    runs-on: ubuntu-latest
+    runs-on: label-1
 
     steps:
       # 1) Checkout your repository code
