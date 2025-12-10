@@ -2,9 +2,9 @@ name: Build, test, and push Halloween Docker image
 
 on:
   push:
-    branches: 
-      - "main" 
-  
+    branches:
+      - "main"
+
 jobs:
   build-test-and-push:
     runs-on: label-1
@@ -31,15 +31,19 @@ jobs:
         run: |
           # Start the container in the background, map port 8080 on runner -> 80 in container
           docker run -d --name halloween-test -p 8080:80 $IMAGE_NAME:latest
-
+          
           # Stop and remove the test container
           docker stop halloween-test
           docker rm halloween-test
 
-      # 6) Log in to Docker Hub using your secrets
+      # 6) List all Docker containers
+      - name: List Docker containers
+        run: docker ps -a
+
+      # 7) Log in to Docker Hub using your secrets
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      # 7) Push the image to Docker Hub
+      # 8) Push the image to Docker Hub
       - name: Push image to Docker Hub
         run: docker push $IMAGE_NAME:latest
