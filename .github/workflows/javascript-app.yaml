@@ -1,4 +1,4 @@
-name: Build, test, push and Deploy Halloween Docker image
+name: Build, test, and push JavaScript App Docker image
 
 on:
   push:
@@ -14,9 +14,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2) Set an IMAGE_NAME env variable like: rosinebelle/halloween-httpd
+      # 2) Set an IMAGE_NAME env variable like: rosinebelle/javascript-app-httpd
       - name: Set image name
-        run: echo "IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/halloween-httpd" >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/javascript-app-httpd" >> $GITHUB_ENV
 
       # 3) Build the Docker image from your Dockerfile
       - name: Build Docker image
@@ -25,12 +25,15 @@ jobs:
       # 4) Run the container to make sure it starts and serves HTTP
       - name: Run container for test
         run: |
-          # Start the container in the background, map port 8080 on runner -> 80 in container
-          docker run -d --name halloween-test -p 8080:80 $IMAGE_NAME:latest
+          # Start the container in the background, map port 8080 on runner -> 3000 in container
+          docker run -d --name javascript-app-test -p 8080:3000 $IMAGE_NAME:latest
+          
+          # Wait for app to start
+          sleep 3
           
           # Stop and remove the test container
-          docker stop halloween-test
-          docker rm halloween-test
+          docker stop javascript-app-test
+          docker rm javascript-app-test
 
       # 5) List all Docker containers
       - name: List Docker containers
@@ -48,16 +51,16 @@ jobs:
       - name: Deploy container
         run: |
           # Stop and remove old container if it exists
-          docker stop halloween-app 2>/dev/null || true
-          docker rm halloween-app 2>/dev/null || true
+          docker stop javascript-app 2>/dev/null || true
+          docker rm javascript-app 2>/dev/null || true
           
-          # Run new container
-          docker run -d --name halloween-app -p 80:80 $IMAGE_NAME:latest
+          # Run new container (map VM port 80 to container port 3000)
+          docker run -d --name javascript-app -p 80:3000 $IMAGE_NAME:latest
 
       # 9) Verify deployment
       - name: Verify deployment
         run: |
           echo "Waiting for container to start..."
           sleep 5
-          docker ps | grep halloween-app
+          docker ps | grep javascript-app
           echo "Container is running!"
