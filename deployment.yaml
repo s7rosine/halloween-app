@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: javascript-app
+  labels:
+    app: javascript-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: javascript-app
+  template:
+    metadata:
+      labels:
+        app: javascript-app
+    spec:
+      containers:
+      - name: javascript-app
+        image: rosinebelle/javascript-app-httpd:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: app-data
+          mountPath: /usr/app/data
+      volumes:
+      - name: app-data
+        emptyDir: {}
