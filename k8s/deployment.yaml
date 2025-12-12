@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: javascript-app
   labels:
-    app: javascript-app
+    app: javascript-app1
 spec:
   replicas: 1
   selector:
